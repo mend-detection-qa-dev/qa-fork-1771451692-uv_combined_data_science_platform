@@ -1,0 +1,78 @@
+[project]
+name = "data-science-platform"
+version = "1.0.0"
+description = "Combined integration test: Data science platform with platform-specific dependencies"
+requires-python = ">=3.10"
+
+dependencies = [
+    # Core scientific stack (all platforms)
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    "matplotlib>=3.7.0",
+    "scipy>=1.11.0",
+
+    # Platform-specific PyTorch
+    "torch==2.1.0+cu118; sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "torch==2.1.0; sys_platform == 'darwin'",
+    "torch==2.1.0+cpu; sys_platform == 'win32'",
+
+    # Data processing
+    "polars>=0.20.0",
+    "pyarrow>=14.0.0",
+
+    # Utilities
+    "tqdm>=4.66.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+gpu = [
+    "torch==2.1.0+cu118",
+    "nvidia-cudnn-cu11>=8.9.0; sys_platform == 'linux'",
+]
+viz = [
+    "plotly>=5.18.0",
+    "seaborn>=0.13.0",
+    "bokeh>=3.3.0",
+]
+notebook = [
+    "jupyter>=1.0.0",
+    "ipykernel>=6.27.0",
+    "notebook>=7.0.0",
+]
+all = [
+    "data-science-platform[gpu,viz,notebook]",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "black>=24.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.8.0",
+    "pre-commit>=3.5.0",
+]
+test = [
+    "pytest-xdist>=3.5.0",
+    "pytest-benchmark>=4.0.0",
+    "hypothesis>=6.92.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
