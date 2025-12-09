@@ -12,11 +12,6 @@ dependencies = [
     "matplotlib>=3.7.0",
     "scipy>=1.11.0",
 
-    # Platform-specific PyTorch
-    "torch==2.1.0+cu118; sys_platform == 'linux' and platform_machine == 'x86_64'",
-    "torch==2.1.0; sys_platform == 'darwin'",
-    "torch==2.1.0+cpu; sys_platform == 'win32'",
-
     # Data processing
     "polars>=0.20.0",
     "pyarrow>=14.0.0",
@@ -28,7 +23,6 @@ dependencies = [
 
 [project.optional-dependencies]
 gpu = [
-    "torch==2.1.0+cu118",
     "nvidia-cudnn-cu11>=8.9.0; sys_platform == 'linux'",
 ]
 viz = [
@@ -73,3 +67,11 @@ line_length = 100
 python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
+
+[tool.uv]
+# Add PyTorch's CUDA index for cu118 packages
+index-url = "https://pypi.org/simple"
+extra-index-url = ["https://download.pytorch.org/whl/cu118"]
+
+# Limit resolution to current platform to avoid cross-platform conflicts
+environments = ["sys_platform == 'darwin'"]
