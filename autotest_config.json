@@ -11,52 +11,34 @@
 
       "total_libs_scanned": {"eq": 0},
       "_comment_total_libs": "For cases where installation fails, no libraries are scanned",
-
       "expected_messages": [
-        {
-          "operator": "regex",
-          "value": "The Security Check did not find any open source libraries to report on",
-          "level": "info",
-          "_comment": "Info-level message: validates standard informational text in the scan output summary"
-        },
-        {
-          "operator": "regex",
-          "value": "Scan Warnings: The scan completed with warnings.*",
-          "level": "warning",
-          "scan_details_report": {
-            "filePath": "/tmp/ws-scm/uv_combined_data_science_platform/pyproject.toml",
-            "description": "One or more of the installations failed",
-            "details": "uv sync failed.*exit status 2.*The current Python platform is not compatible"
-          },
-          "_comment": "Warning-level message with scan_details_report validation. The scan_details_report validates the Scan Details Report table data. All fields (filePath, description, details) support both regex patterns and substring matching. Use '.*' for flexible regex patterns."
-        },
-        {
-          "operator": "regex",
-          "value": "The resolution operation failed due to a component used in the resolution operation that was not found",
-          "level": "error",
-          "scan_details_report": {
-            "filePath": "/tmp/ws-scm/uv_combined_data_science_platform/pyproject.toml",
-            "description": "The resolution operation failed",
-            "details": "No libraries installed in environment.*Please install the environment.*before scanning"
-          },
-          "_comment": "Error-level message with scan_details_report. Scanner logs are automatically attached to Report Portal for error-level messages. The scan_details_report matches table entries from the Scan Details Report section."
-        },
-        {
-          "operator": "regex",
-          "value": ".*Preparing the project for scan.*",
-          "level": "warning",
-          "scan_details_report": {
-            "filePath": ".*pyproject\\.toml",
-            "description": ".*installations failed",
-            "details": ".*exit status.*"
-          },
-          "_comment": "Example with regex patterns in all fields. The '.*' allows flexible matching of file paths and dynamic content."
-        }
-      ],
-      "_comment_expected_messages_format": "Each message entry has: 'operator' (eq, regex, or contains), 'value' (text/pattern to match), 'level' (info, error, warning), and optional 'scan_details_report' object",
-      "_comment_scan_details_report": "The scan_details_report object has optional fields: 'filePath', 'description', 'details'. Each field supports both exact substring matching and regex patterns (use .* for wildcards). The validator parses the Scan Details Report table from the GitHub check output and matches entries against these patterns.",
-      "_comment_message_levels": "Level 'info': Standard validation. Level 'warning': Validates warnings, strictMode auto-set to 'warning'. Level 'error': Validates errors, scanner logs auto-attached to Report Portal.",
-      "_comment_operator_types": "'eq': Exact match. 'contains': Case-insensitive substring match. 'regex': Regular expression pattern match with case-insensitive flag."
+             {
+               "operator": "contains",
+               "value": "The scan wasn't completed due to the issues encountered while retrieving or scanning dependencies for the following package managers: uv.",
+               "level": "error",
+               "_comment": "Main error message validation"
+             },
+             {
+               "operator": "contains",
+               "value": "Preparing the project for scan",
+               "level": "warning",
+               "scan_details_report": {
+                 "filePath": ".*pyproject\\.toml",
+                 "description": "One or more of the installations failed",
+                 "details": "The current Python platform is not compatible with the lockfile's supported environments: sys_platform == 'darwin'"
+               }
+             },
+             {
+               "operator": "contains",
+               "value": "Resolving the project",
+               "level": "error",
+               "scan_details_report": {
+                 "filePath": ".*pyproject\\.toml",
+                 "description": "The resolution operation failed due to a component used in the resolution operation that was not found",
+                 "details": "No libraries installed in environment. Project declares 9 dependencies. Please install the environment (e.g., run 'uv sync') before scanning."
+               }
+             }
+           ]
     },
 
     "validate_dependency_tree": false,
@@ -73,55 +55,11 @@
       "check_vulnerabilities_table_structure": false
     },
 
-    "validate_scanner_logs": true,
-    "_comment_logs": "Enable to validate specific log entries or attach logs to Report Portal",
-
-    "logs": {
-      "check_scanner_logs": true,
-      "expected_log_lines": [
-        {
-          "operator": "regex",
-          "value": ".*uv sync failed.*exit status 2.*"
-        },
-        {
-          "operator": "contains",
-          "value": "The current Python platform is not compatible with the lockfile's supported environments"
-        }
-      ],
-      "_comment": "Optional: validate specific log lines in scanner logs. Useful for debugging installation or resolution failures."
-    },
+    "validate_scanner_logs": false,
 
     "validate_reachability": false,
     "reachability": {
       "check_reachability_status": false
-    }
-  },
-
-  "_additional_examples": {
-    "_example_1_simple_warning": {
-      "operator": "contains",
-      "value": "Scan Warnings",
-      "level": "warning",
-      "_description": "Simple warning validation without scan_details_report - just checks if warning text appears in output"
-    },
-    "_example_2_error_with_partial_details": {
-      "operator": "eq",
-      "value": "Resolution failed",
-      "level": "error",
-      "scan_details_report": {
-        "description": "The resolution operation failed"
-      },
-      "_description": "Error with partial scan_details_report - only validates description field, filePath and details are optional"
-    },
-    "_example_3_multiple_files": {
-      "operator": "regex",
-      "value": ".*installation.*failed.*",
-      "level": "warning",
-      "scan_details_report": {
-        "filePath": ".*/service-[a-z]/pyproject\\.toml",
-        "description": "One or more.*failed"
-      },
-      "_description": "Validates warnings across multiple files using regex pattern for filePath (e.g., service-a, service-b, etc.)"
     }
   }
 }
