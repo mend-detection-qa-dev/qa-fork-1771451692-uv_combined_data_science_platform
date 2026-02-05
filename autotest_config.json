@@ -1,86 +1,127 @@
 {
-    "description": "Autotest configuration file for dependency tree detection validation",
-    "version": 1.1,
-    "base_config": {
-        "validate_scan_output": true,
-        "_comment_validate_scan_output": "Whether to validate the scan output/exit code. Options: true | false. Default: true",
-        "scan_output": {
-            "_security_scan_report_conclusion": "failure",
-            "_comment_security_scan_report_conclusion": "Optional. Expected scan report conclusion. Options: 'success' | 'failure'. This validates the security scan result status. If not provided, this check will not be performed.",
-            "total_libs_scanned": {
-                "eq": 23
-            },
-            "_comment_total_libs_scanned": "Expected number of libraries scanned with comparison operator. Validates that the scan processed libraries."
+  "description": "Example autotest configuration demonstrating warning and error message validation from scan output",
+  "version": 1.5,
+  "_usage_notes": "This example shows how to validate scan warnings and errors that appear in the Scan Details Report table. The scan_details_report field supports validating specific table entries with filePath, description, and details.",
+
+  "base_config": {
+    "validate_scan_output": true,
+    "scan_output": {
+      "security_scan_report_conclusion": "success",
+      "_comment_conclusion": "Set to 'success' if scan completes despite warnings, or 'failure' if errors cause scan to fail",
+
+      "total_libs_scanned": {"eq": 0},
+      "_comment_total_libs": "For cases where installation fails, no libraries are scanned",
+
+      "expected_messages": [
+        {
+          "operator": "contains",
+          "value": "The Security Check did not find any open source libraries to report on",
+          "level": "info",
+          "_comment": "Info-level message: validates standard informational text in the scan output summary"
         },
-        "validate_dependency_tree": true,
-        "_comment_validate_dependency_tree": "Whether to validate the dependency tree. Options: true | false. Default: true",
-        "dependency_tree": {
-            "check_dependency_tree_detection_status": true,
-            "_comment_check_dependency_tree_detection_status": "Whether to check if dependency tree was successfully detected. Options: true | false. Default: true",
-            "expected_total_dependencies_number": {
-                "eq": 30
-            },
-            "expected_direct_dependencies_number": {
-                "eq": 9
-            },
-            "expected_transitive_dependencies_number": {
-                "eq": 21
-            },
-            "_comment_expected_dependencies_number": "Optional. Expected number of dependencies with comparison operator. Operators: gt (>), gte (>=), lt (<), lte (<=), eq (==). If not provided, this check will not be performed.",
-            "direct_dependencies_names_list": {
-                "eq": [
-                    "pandas",
-                    "scipy",
-                    "tqdm",
-                    "matplotlib",
-                    "numpy",
-                    "pyarrow",
-                    "python-dotenv",
-                    "polars",
-                    "scikit-learn"
-                ]
-            },
-            "transitive_dependencies_names_list": {
-                "eq": [
-                    "contourpy",
-                    "pytz",
-                    "pillow",
-                    "scipy",
-                    "tzdata",
-                    "kiwisolver",
-                    "python-dateutil",
-                    "packaging",
-                    "threadpoolctl",
-                    "numpy",
-                    "cycler",
-                    "pyparsing",
-                    "joblib",
-                    "six",
-                    "polars-runtime-32",
-                    "fonttools"
-                ]
-            },
-            "_comment_dependencies_names_list": "Optional. Check specific libraries in direct dependencies. Operators: eq (==), contains (all items from expected list in actual), in(all items from actual list in expected), nin(actual list does not contain provided libs). If not provided, this check will not be performed.",
-            "validate_agent_versions": true,
-            "expected_agent_version": "",
-            "expected_plugin_version": "",
-            "_comment_agent_versions": "Optional. Expected agent and plugin versions. If not provided, this check will not be performed."
+        {
+          "operator": "regex",
+          "value": "Scan Warnings: The scan completed with warnings.*",
+          "level": "warning",
+          "scan_details_report": {
+            "filePath": "/tmp/ws-scm/uv_combined_data_science_platform/pyproject.toml",
+            "description": "One or more of the installations failed",
+            "details": "uv sync failed.*exit status 2.*The current Python platform is not compatible"
+          },
+          "_comment": "Warning-level message with scan_details_report validation. The scan_details_report validates the Scan Details Report table data. All fields (filePath, description, details) support both regex patterns and substring matching. Use '.*' for flexible regex patterns."
         },
-        "validate_vulnerabilities_table": true,
-        "_comment_validate_vulnerabilities_table": "Whether to validate the vulnerabilities table. Options: true | false. Default: true",
-        "vulnerabilities_table": {
-            "check_vulnerabilities_table_structure": true,
-            "expected_total_vulnerabilities_number": {
-                "gte": 0
-            },
-            "vulnerabilities_ids_list": {
-                "contains": []
-            },
-            "_comment_ids_names_list": "Optional. Check specific libs ids (WS-2018-0111, CVE-2021-44906). Operators: eq (==), contains (all items from expected list in actual), in(all items from actual list in expected), nin(actual list does not contain provided libs). If not provided, this check will not be performed.",
-            "vulnerabilities_names_list": {
-                "contains": []
-            },
-            "_comment_vulnerabilities_names_list": "Optional. Check specific libs names (minimist-0.0.8.tgz). Operators: eq (==), contains (all items from expected list in actual), in(all items from actual list in expected), nin(actual list does not contain provided libs). If not provided, this check will not be performed."
+        {
+          "operator": "contains",
+          "value": "The resolution operation failed due to a component used in the resolution operation that was not found",
+          "level": "error",
+          "scan_details_report": {
+            "filePath": "/tmp/ws-scm/uv_combined_data_science_platform/pyproject.toml",
+            "description": "The resolution operation failed",
+            "details": "No libraries installed in environment.*Please install the environment.*before scanning"
+          },
+          "_comment": "Error-level message with scan_details_report. Scanner logs are automatically attached to Report Portal for error-level messages. The scan_details_report matches table entries from the Scan Details Report section."
+        },
+        {
+          "operator": "regex",
+          "value": ".*Preparing the project for scan.*",
+          "level": "warning",
+          "scan_details_report": {
+            "filePath": ".*pyproject\\.toml",
+            "description": ".*installations failed",
+            "details": ".*exit status.*"
+          },
+          "_comment": "Example with regex patterns in all fields. The '.*' allows flexible matching of file paths and dynamic content."
         }
+      ],
+      "_comment_expected_messages_format": "Each message entry has: 'operator' (eq, regex, or contains), 'value' (text/pattern to match), 'level' (info, error, warning), and optional 'scan_details_report' object",
+      "_comment_scan_details_report": "The scan_details_report object has optional fields: 'filePath', 'description', 'details'. Each field supports both exact substring matching and regex patterns (use .* for wildcards). The validator parses the Scan Details Report table from the GitHub check output and matches entries against these patterns.",
+      "_comment_message_levels": "Level 'info': Standard validation. Level 'warning': Validates warnings, strictMode auto-set to 'warning'. Level 'error': Validates errors, scanner logs auto-attached to Report Portal.",
+      "_comment_operator_types": "'eq': Exact match. 'contains': Case-insensitive substring match. 'regex': Regular expression pattern match with case-insensitive flag."
+    },
+
+    "validate_dependency_tree": false,
+    "_comment_dependency_tree": "Disabled since no dependencies are expected when installation fails",
+
+    "dependency_tree": {
+      "check_dependency_tree_detection_status": false
+    },
+
+    "validate_vulnerabilities_table": false,
+    "_comment_vulnerabilities": "Disabled since no vulnerabilities are expected with 0 libraries scanned",
+
+    "vulnerabilities_table": {
+      "check_vulnerabilities_table_structure": false
+    },
+
+    "validate_scanner_logs": true,
+    "_comment_logs": "Enable to validate specific log entries or attach logs to Report Portal",
+
+    "logs": {
+      "check_scanner_logs": true,
+      "expected_log_lines": [
+        {
+          "operator": "regex",
+          "value": ".*uv sync failed.*exit status 2.*"
+        },
+        {
+          "operator": "contains",
+          "value": "The current Python platform is not compatible with the lockfile's supported environments"
+        }
+      ],
+      "_comment": "Optional: validate specific log lines in scanner logs. Useful for debugging installation or resolution failures."
+    },
+
+    "validate_reachability": false,
+    "reachability": {
+      "check_reachability_status": false
     }
+  },
+
+  "_additional_examples": {
+    "_example_1_simple_warning": {
+      "operator": "contains",
+      "value": "Scan Warnings",
+      "level": "warning",
+      "_description": "Simple warning validation without scan_details_report - just checks if warning text appears in output"
+    },
+    "_example_2_error_with_partial_details": {
+      "operator": "eq",
+      "value": "Resolution failed",
+      "level": "error",
+      "scan_details_report": {
+        "description": "The resolution operation failed"
+      },
+      "_description": "Error with partial scan_details_report - only validates description field, filePath and details are optional"
+    },
+    "_example_3_multiple_files": {
+      "operator": "regex",
+      "value": ".*installation.*failed.*",
+      "level": "warning",
+      "scan_details_report": {
+        "filePath": ".*/service-[a-z]/pyproject\\.toml",
+        "description": "One or more.*failed"
+      },
+      "_description": "Validates warnings across multiple files using regex pattern for filePath (e.g., service-a, service-b, etc.)"
+    }
+  }
 }
