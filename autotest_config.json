@@ -14,7 +14,7 @@
 
       "expected_messages": [
         {
-          "operator": "contains",
+          "operator": "regex",
           "value": "The Security Check did not find any open source libraries to report on",
           "level": "info",
           "_comment": "Info-level message: validates standard informational text in the scan output summary"
@@ -31,7 +31,7 @@
           "_comment": "Warning-level message with scan_details_report validation. The scan_details_report validates the Scan Details Report table data. All fields (filePath, description, details) support both regex patterns and substring matching. Use '.*' for flexible regex patterns."
         },
         {
-          "operator": "contains",
+          "operator": "regex",
           "value": "The resolution operation failed due to a component used in the resolution operation that was not found",
           "level": "error",
           "scan_details_report": {
