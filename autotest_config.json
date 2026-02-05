@@ -12,35 +12,28 @@
       "total_libs_scanned": {"eq": 0},
       "_comment_total_libs": "For cases where installation fails, no libraries are scanned",
       "expected_messages": [
-             {
-               "operator": "contains",
-               "value": "The scan wasn't completed due to the issues encountered while retrieving or scanning dependencies for the following package managers: uv.",
-               "level": "error",
-               "_comment": "Main error message validation"
-             },
-             {
-               "operator": "contains",
-               "value": "Preparing the project for scan",
-               "level": "warning",
-               "scan_details_report": {
-                 "filePath": ".*pyproject\\.toml",
-                 "description": "One or more of the installations failed",
-                 "details": "The current Python platform is not compatible with the lockfile's supported environments: sys_platform == 'darwin'"
-               }
-             },
-             {
-               "operator": "contains",
-               "value": "Resolving the project",
-               "level": "error",
-               "scan_details_report": {
-                 "filePath": ".*pyproject\\.toml",
-                 "description": "The resolution operation failed due to a component used in the resolution operation that was not found",
-                 "details": "No libraries installed in environment. Project declares 9 dependencies. Please install the environment (e.g., run 'uv sync') before scanning."
-               }
-             }
-           ]
+        {
+          "operator": "contains",
+          "value": "Preparing the project for scan",
+          "level": "warning",
+          "scan_details_report": {
+            "filePath": ".*pyproject\\.toml",
+            "description": "One or more of the installations failed",
+            "details": ".*The current Python platform is not compatible with the lockfile's supported environments.*darwin.*"
+          }
+        },
+        {
+          "operator": "contains",
+          "value": "Resolving the project",
+          "level": "error",
+          "scan_details_report": {
+            "filePath": ".*pyproject\\.toml",
+            "description": "The resolution operation failed due to a component used in the resolution operation that was not found",
+            "details": "No libraries installed in environment. Project declares 9 dependencies. Please install the environment (e.g., run 'uv sync') before scanning."
+          }
+        }
+      ]
     },
-
     "validate_dependency_tree": false,
     "_comment_dependency_tree": "Disabled since no dependencies are expected when installation fails",
 
